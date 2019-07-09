@@ -3,7 +3,7 @@
 
 ## Uncomment and set this to only include directories you want to watch
 # directories %w(app lib config test spec features) \
-#  .select{|d| Dir.exist?(d) ? d : UI.warning("Directory #{d} does not exist")}
+#  .select{|d| Dir.exists?(d) ? d : UI.warning("Directory #{d} does not exist")}
 
 ## Note: if you are using the `directories` clause above and you are not
 ## watching the project directory ('.'), then you will want to move
@@ -16,19 +16,19 @@
 # and, you'll have to watch "config/Guardfile" instead of "Guardfile"
 
 cucumber_options = {
-  # Below are examples overriding defaults
+    # Below are examples overriding defaults
 
-  # cmd: 'bin/cucumber',
-  # cmd_additional_args: '--profile guard',
+    # cmd: 'bin/cucumber',
+    # cmd_additional_args: '--profile guard',
 
-  # all_after_pass: false,
-  # all_on_start: false,
-  # keep_failed: false,
-  # feature_sets: ['features/frontend', 'features/experimental'],
+    # all_after_pass: false,
+    # all_on_start: false,
+    # keep_failed: false,
+    # feature_sets: ['features/frontend', 'features/experimental'],
 
-  # run_all: { cmd_additional_args: '--profile guard_all' },
-  # focus_on: { 'wip' }, # @wip
-  # notification: false
+    # run_all: { cmd_additional_args: '--profile guard_all' },
+    # focus_on: { 'wip' }, # @wip
+    # notification: false
 }
 
 guard "cucumber", cucumber_options do
@@ -49,7 +49,7 @@ end
 #  * zeus: 'zeus rspec' (requires the server to be started separately)
 #  * 'just' rspec: 'rspec'
 
-guard :rspec, cmd: "bundle exec rspec" do
+guard :rspec, cmd: "rspec" do
   require "guard/rspec/dsl"
   dsl = Guard::RSpec::Dsl.new(self)
 
@@ -70,21 +70,23 @@ guard :rspec, cmd: "bundle exec rspec" do
   dsl.watch_spec_files_for(rails.app_files)
   dsl.watch_spec_files_for(rails.views)
 
+  watch(%r{^app/controllers/(.+)_(controller)\.rb$})  { "spec/features" }
+  watch(%r{^app/models/(.+)\.rb$})  { "spec/features" }
   watch(rails.controllers) do |m|
     [
-      rspec.spec.call("routing/#{m[1]}_routing"),
-      rspec.spec.call("controllers/#{m[1]}_controller"),
-      rspec.spec.call("acceptance/#{m[1]}")
+        rspec.spec.call("routing/#{m[1]}_routing"),
+        rspec.spec.call("controllers/#{m[1]}_controller"),
+        rspec.spec.call("acceptance/#{m[1]}")
     ]
   end
 
   # Rails config changes
   watch(rails.spec_helper)     { rspec.spec_dir }
-  watch(rails.routes)          { "#{rspec.spec_dir}/routing" }
+  watch(rails.routes)          { "spec" } # { "#{rspec.spec_dir}/routing" }
   watch(rails.app_controller)  { "#{rspec.spec_dir}/controllers" }
 
   # Capybara features specs
-  watch(rails.view_dirs)     { |m| rspec.spec.call("features/#{m[1]}") }
+  watch(rails.view_dirs)     { "spec/features" } # { |m| rspec.spec.call("features/#{m[1]}") }
   watch(rails.layouts)       { |m| rspec.spec.call("features/#{m[1]}") }
 
   # Turnip features and steps
