@@ -1,6 +1,6 @@
-require "rails_helper"
+require 'rails_helper'
 
-RSpec.feature "Editing an Article" do
+RSpec.feature "Editing an article" do
 
   before do
     john = User.create(email: "john@example.com", password: "password")
@@ -10,23 +10,29 @@ RSpec.feature "Editing an Article" do
 
   scenario "A user updates an article" do
     visit "/"
+
     click_link @article.title
     click_link "Edit Article"
-    fill_in "Title", with: "Updated Article"
-    fill_in "Body", with: "Lorem Ipsum"
+
+    fill_in "Title", with: "Updated Title"
+    fill_in "Body", with: "Updated Body of Article"
     click_button "Update Article"
+
     expect(page).to have_content("Article has been updated")
     expect(page.current_path).to eq(article_path(@article))
   end
 
   scenario "A user fails to update an article" do
     visit "/"
-    click_link @article.title click_link "Edit Article"
+
+    click_link @article.title
+    click_link "Edit Article"
+
     fill_in "Title", with: ""
-    fill_in "Body", with: "Lorem Ipsum"
+    fill_in "Body", with: "Updated Body of Article"
     click_button "Update Article"
+
     expect(page).to have_content("Article has not been updated")
-    expect(current_path).to eq(article_path(@article))
+    expect(page.current_path).to eq(article_path(@article))
   end
 end
-
